@@ -1,0 +1,133 @@
+---
+title: "Daggity and GGdag"
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+# output:
+#   html_document:
+#     df_print: paged
+# editor_options:
+#   chunk_output_type: inline
+---
+
+This is a Here, we're going to learn how to:
+
+1) create a DAG with the daggity package or through the daggity website 
+2) identify key components of a DAG
+3) 
+)  use additional functionality using ggdag package
+
+
+
+
+```{r}
+library(ggdag)
+```
+
+
+## Creating a DAG online
+
+An easy way to create DAGs online is on the [DAGitty website](http://www.dagitty.net/dags.html).
+
+Often times in causal literature (for point-treatment effects), variables will be denoted as follows:
+
+- A = exposure node
+- Y = outcome node
+- W = confounder node(s)
+
+We can set up a simple DAG on the DAGitty website by naivating here:
+
+![](./imgs/dagitty1.png){width=50%}
+
+
+...and using the following shortkeys by holding your cursor over the node of interest and pressing:
+
+<!-- ::: l-body-outset -->
+
+| Command  | Description |
+|----------|----------|
+| D     | Deletes node        |
+| R      | Renames node  |
+| A    | Changes node to being adjusted/unadjusted |
+| N | Makes new node |
+| U | Changes a node to be unobserved/observed |
+<!-- ::: -->
+
+You can add/subract the arrows by clicking one node of interest, and then the other.
+
+You can see a legend of the different node and path colors and shapes on the lower lefthand side, as so:
+![](./imgs/dagitty3.png){width=30%}
+
+
+
+
+
+Let's try it out! 
+
+#### Activity:
+
+1) Use the shortcuts above to make a DAG that looks like the one below:
+![](./imgs/dagitty2.png){width=50%}
+2) What do the "testable implications" on the right hand side say? How is that related to the concept of "conditional independence" that we saw in the Tuesday presentation?
+3) Now adjust for W1 and W2.
+Adjust the W3 node by holding your cursor over it and typing the shortkey "a". How does this 
+3) Copy the code in the "model code" section on the righthand side into 
+
+```{r, eval=T, include=T, echo=T}
+#install.packages("dagitty")
+library(dagitty)
+
+dag <- dagitty(
+  'dag {
+A [exposure,pos="-1.243,0.333"]
+W1 [pos="-1.031,-0.585"]
+W2 [pos="-0.140,-0.632"]
+W3 [pos="-0.550,0.629"]
+Y [outcome,pos="0.160,0.328"]
+A -> W3
+A -> Y
+W1 -> A
+W1 -> Y
+W2 -> A
+W2 -> Y
+W3 -> Y
+}'
+)
+
+plot(dag)
+```
+
+
+First, we can set up a dag by 
+
+
+
+We can now perform a variety of functions on the DAG to examine different relationships such as ancestors, descendents, 
+
+
+
+```{r, eval=F}
+backDoorGraph(dag)
+
+class(dag)
+      
+      impliedConditionalIndependencies
+
+```
+
+
+## GGDAG
+
+```{r}
+
+
+
+```
+
+
+
+# References 
+
+http://dagitty.net/primer/
