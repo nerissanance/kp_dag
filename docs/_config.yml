@@ -1,6 +1,0 @@
-navbar:
-  title: "DAGS"
-  left:
-  - text: "Home"
-   href: index.html
-theme: jekyll-theme-cayman
