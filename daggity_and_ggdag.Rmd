@@ -1,63 +1,52 @@
 ---
-title: "Daggity and GGdag"
-knit: (function(input_file, encoding) {
-  out_dir <- 'docs';
-  rmarkdown::render(input_file,
- encoding=encoding,
- output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-# output:
-#   html_document:
-#     df_print: paged
+title: "KPDOR Causal Week: creating dags with dagitty"
+author: Nerissa Nance
+date: May 20, 2021
+# knit: (function(input_file, encoding) {
+#   out_dir <- 'docs';
+#   rmarkdown::render(input_file,
+#  encoding=encoding,
+#  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+output:
+  html_document
+    # df_print: paged
 # editor_options:
-#   chunk_output_type: inline
+  # chunk_output_type: inline
 ---
 
-This is a Here, we're going to learn how to:
+Continuing with our Causal Week Brown Bag Sessions, this is a quick series of activities to get us comfortable with dagitty and ggdag functionality. Here, we're going to:
 
-1) create a DAG with the daggity package or through the daggity website 
-2) identify key components of a DAG
-3) 
-)  use additional functionality using ggdag package
+1) create a dag through the daggity website;
+2) identify key components of a dag and important shortkeys;
+3) identify some components and graph the dag with the daggity package in R; and
+4) review additional functionality using ggdag package.
 
+*DISCLAIMER: this is very brief and in no way comprehensive of the functionality of dagitty or ggdag. See references for further review materials. *
 
+## Creating a dag with dagitty online
 
+An easy way to create dags online is on the [dagitty website](http://www.dagitty.net/dags.html).
 
-```{r}
-library(ggdag)
-```
-
-
-## Creating a DAG online
-
-An easy way to create DAGs online is on the [DAGitty website](http://www.dagitty.net/dags.html).
-
-Often times in causal literature (for point-treatment effects), variables will be denoted as follows:
-
-- A = exposure node
-- Y = outcome node
-- W = confounder node(s)
-
-We can set up a simple DAG on the DAGitty website by naivating here:
+We can view a simple dag on the dagitty website by naivating here:
 
 ![](./imgs/dagitty1.png){width=50%}
 
 
-...and using the following shortkeys by holding your cursor over the node of interest and pressing:
+...and you can edit it using the following shortkeys by holding your cursor over the node of interest and pressing:
 
 <!-- ::: l-body-outset -->
 
-| Command  | Description |
+| Key  | Usage |
 |----------|----------|
-| D     | Deletes node        |
-| R      | Renames node  |
-| A    | Changes node to being adjusted/unadjusted |
-| N | Makes new node |
-| U | Changes a node to be unobserved/observed |
+| D                 | Deletes node        |
+| R                 | Renames node  |
+| A                 | Changes node to being adjusted/unadjusted |
+| N                 | Makes new node |
+| U                 | Changes a node to be unobserved/observed |
 <!-- ::: -->
 
-You can add/subract the arrows by clicking one node of interest, and then the other.
 
-You can see a legend of the different node and path colors and shapes on the lower lefthand side, as so:
+You can see a legend of the different node and path colors on the lower lefthand side, as so:
 ![](./imgs/dagitty3.png){width=30%}
 
 
@@ -66,14 +55,34 @@ You can see a legend of the different node and path colors and shapes on the low
 
 Let's try it out! 
 
-#### Activity:
+#### Activity 1: Causal identification with colliders
 
-1) Use the shortcuts above to make a DAG that looks like the one below:
+1) Let's start with the template dag given to you by dagitty. what happens when you adjust for Z (hold your cursor over Z and press "A")? What happens to the causal effect identification in the upper lefthand corner, and why?
+2) What about if you additionally adjust for either A or B?
+3) You can add/subract the arrows by clicking one node of interest, and then the other. Try doing this now by adding an arrow from Z to D. What happens to the total effect identification?
+4) Adjust a minimally sufficient set of nodes to control for confounding.
+
+-------
+
+#### Activity 2: Making a dag in dagitty online
+
+Often times in causal literature (for point-treatment effects), variables will be denoted as follows:
+
+- A = exposure node
+- Y = outcome node
+- W = confounder node(s)
+
+1) Use the shortcuts above to make a dag that looks like the one below:
 ![](./imgs/dagitty2.png){width=50%}
-2) What do the "testable implications" on the right hand side say? How is that related to the concept of "conditional independence" that we saw in the Tuesday presentation?
-3) Now adjust for W1 and W2.
-Adjust the W3 node by holding your cursor over it and typing the shortkey "a". How does this 
-3) Copy the code in the "model code" section on the righthand side into 
+2) What do the "testable implications" on the right hand side say? What conditional independences do you see? Find them also on the graph.
+3) Now adjust for W1 and W2. What effect are we now measuring?
+4) Now additionally adjust for W3. What effect are we measuring now?
+
+------
+
+## Examining dags in R with dagitty
+
+Copy the code in the "model code" section on the righthand side into you R console, if you have access to R. You will need to run `install.packages("dagitty")` if you don't have the package already. You will also need to enclose the dag code in quotes and in the dagitty function, as seen below:
 
 ```{r, eval=T, include=T, echo=T}
 #install.packages("dagitty")
@@ -100,34 +109,137 @@ plot(dag)
 ```
 
 
-First, we can set up a dag by 
+Now that we have our dag, we can perform a variety of functions on the dag to examine different relationships such as ancestors and descendents.
 
 
 
-We can now perform a variety of functions on the DAG to examine different relationships such as ancestors, descendents, 
+```{r, eval=T}
 
-
-
-```{r, eval=F}
-backDoorGraph(dag)
-
-class(dag)
-      
-      impliedConditionalIndependencies
+ancestors( dag, "Y" )
+descendants( dag, "A" )
 
 ```
 
+We can also look at all the paths between variables such as A and Y (the `open` object shows us whether the paths are open or closed):
+```{r}
+paths( dag, "A", "Y")$open
+paths( dag, "A", "Y")$paths
+paths( dag, "A", "Y", directed=T)$paths
+```
 
-## GGDAG
+We can examine the conditional independencies in the dag:
+```{r}
+impliedConditionalIndependencies(dag)
+```
+
+We can also look at the possible adjustment sets (in our case there is only one, but in other cases there may be more than one):
+```{r}
+adjustmentSets(dag)
+```
+
+If we adjust for these variables, we will no longer have open paths between the exposure and outcome:
 
 ```{r}
 
+adjustedNodes(dag) <- c("W1","W2")
 
+paths( dag, "A", "Y", c("W1","W2") )
 
 ```
 
+
+We can also explore this using the dseparation command:
+
+```{r}
+sapply( names(dag), function(Z) dseparated(dag,"A","Y",Z) )
+```
+
+Ok, that was fun, but why both with this if we can do it all on the dagitty website? R can be helpful if you want to have replicable code that saves a complex dag, tests for d-separation and indepdendencies given different adjustment sets, etc. You can't (to my knowledge) save results directly in dagitty.net. We won't go over this today, but there are also ways to test relationships in a dag through simulations in R. 
+
+------
+
+#### Activity: R to dagitty online
+
+Let's try with a more complex graph now. 
+
+```{r}
+
+set.seed(2342)
+
+rdag <- dagitty(dagitty::randomDAG(10, .5))
+rdag
+exposures(rdag) <-"x1"
+outcomes(rdag) <- "x5"
+
+plot(graphLayout(rdag))
+
+```
+
+Try pasting this directly into the daggity.net "model code" section on the righthand side. Poof! It renders a dag.
+
+1) Is there confounding in this graph?
+2) What happens when you adjust for X8?
+
+------
+
+## Examining dags in R with ggdag
+
+For the R users out there, the ggdag may be useful to you. It is a package that's built on top of dagitty to extend its functionality to work in the world of tidyverse. 
+
+The `tidy_dagitty()` command creates a tibble with the dag's details (coordinates, direction of effect, etc.):
+
+```{r, echo=F, include=F}
+
+library(ggdag)
+```
+```{r}
+tidydag <- tidy_dagitty(dag)
+tidydag
+
+```
+
+For the most part this is nice for visualizing the dag quickly and easily. For example, looking at paths between exposure and outcome:
+```{r}
+
+ggdag_paths(dag)
+
+```
+
+Visually examining parents and children of a specific variable:
+
+```{r}
+ggdag_parents(dag, "Y")
+```
+
+Or visualizing the adjustment set needed for your exposure-outcome total effect:
+```{r}
+ggdag_adjustment_set(dag)
+
+```
+
+
+You can review reference material for more details.
+
+--------
+
+### That's all for now!
+
+Hopefully this was enough to get you started with dagitty (and ggdag), and that you now:
+
+1)  can create a dag through the daggity website;
+2) can identify key components of a dag and important shortkeys;
+3) know how to identify some components and graph the dag with the daggity package in R; and
+4) can use some of the graphs from the ggdag package to identify relationships in your dag.
 
 
 # References 
 
+https://cran.r-project.org/web/packages/dagitty/dagitty.pdf
+
 http://dagitty.net/primer/
+
+https://cran.r-project.org/web/packages/ggdag/vignettes/intro-to-ggdag.html
+
+https://ggdag.malco.io/ 
+
+
