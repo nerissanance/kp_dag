@@ -23,9 +23,14 @@ Continuing with our Causal Week Brown Bag Sessions, this is a quick series of ac
 
 *DISCLAIMER: this is very brief and in no way comprehensive of the functionality of dagitty or ggdag. See references for further review materials. *
 
+**Souce code: [Github](https://github.com/nerissanance/kp_dag/blob/master/daggity_and_ggdag.Rmd)**
+
 ## Creating a dag with dagitty online
 
 An easy way to create dags online is on the [dagitty website](http://www.dagitty.net/dags.html).
+
+As you can see from the home page, Dagitty is developed and maintained by Johannes Textor (Tumor Immmunology Lab and Institute for Computing and Information Sciences, Radboud University Nijmegen), though many folks have contributed to the source code development. If you end up using Dagitty in your research, be sure to cite approriately!
+
 
 We can view a simple dag on the dagitty website by naivating here:
 
@@ -47,6 +52,7 @@ We can view a simple dag on the dagitty website by naivating here:
 
 
 You can see a legend of the different node and path colors on the lower lefthand side, as so:
+
 ![](./imgs/dagitty3.png){width=30%}
 
 
@@ -73,7 +79,9 @@ Often times in causal literature (for point-treatment effects), variables will b
 - W = confounder node(s)
 
 1) Use the shortcuts above to make a dag that looks like the one below:
+
 ![](./imgs/dagitty2.png){width=50%}
+
 2) What do the "testable implications" on the right hand side say? What conditional independences do you see? Find them also on the graph.
 3) Now adjust for W1 and W2. What effect are we now measuring?
 4) Now additionally adjust for W3. What effect are we measuring now?
@@ -148,19 +156,18 @@ paths( dag, "A", "Y", c("W1","W2") )
 ```
 
 
-We can also explore this using the dseparation command:
 
-```{r}
-sapply( names(dag), function(Z) dseparated(dag,"A","Y",Z) )
-```
+*Ok, that was fun, but why both with this if we can do it all on the dagitty website?*
 
-Ok, that was fun, but why both with this if we can do it all on the dagitty website? R can be helpful if you want to have replicable code that saves a complex dag, tests for d-separation and indepdendencies given different adjustment sets, etc. You can't (to my knowledge) save results directly in dagitty.net. We won't go over this today, but there are also ways to test relationships in a dag through simulations in R. 
+R can be helpful if you want to have replicable code that saves a complex dag, examine conditional independencies, explore different adjustment sets, etc. We won't go over this today, but there are also ways to test relationships in a dag through simulations in R. 
+
+If you don't want to use R, though, you can save directly to dagitty.net by clicking "publish" under the "model" tab above the dag. 
 
 ------
 
 #### Activity: R to dagitty online
 
-Let's try with a more complex graph now. 
+Let's try a more complex graph now. 
 
 ```{r}
 
@@ -175,7 +182,7 @@ plot(graphLayout(rdag))
 
 ```
 
-Try pasting this directly into the daggity.net "model code" section on the righthand side. Poof! It renders a dag.
+If you have RStudio open, run the above code (also accessed on the [Github](https://github.com/nerissanance/kp_dag/blob/master/daggity_and_ggdag.Rmd)) and try pasting the resulting dag directly into the daggity.net "model code" section on the righthand side. Poof! It renders a dag.
 
 1) Is there confounding in this graph?
 2) What happens when you adjust for X8?
@@ -198,7 +205,19 @@ tidydag
 
 ```
 
-For the most part this is nice for visualizing the dag quickly and easily. For example, looking at paths between exposure and outcome:
+For the most part this is nice for visualizing the dag quickly and easily with ggplot:
+
+```{r}
+ ggplot(tidydag,aes(x = x, y = y, xend = xend, yend = yend)) +
+    geom_dag_point() + #this initializes the nodes
+    geom_dag_edges() + #this initializes the arrows
+    geom_dag_text() + #this labels the nodes
+    theme_dag() #this removes the axes from the graph 
+
+```
+
+
+You can look at paths between exposure and outcome:
 ```{r}
 
 ggdag_paths(dag)
@@ -233,6 +252,12 @@ Hopefully this was enough to get you started with dagitty (and ggdag), and that 
 
 
 # References 
+
+Johannes Textor, Benito van der Zander, Mark S Gilthorpe, Maciej Liśkiewicz, George TH Ellison, Robust causal inference using directed acyclic graphs: the R package ‘dagitty’, International Journal of Epidemiology, Volume 45, Issue 6, December 2016, Pages 1887–1894, https://doi.org/10.1093/ije/dyw341
+
+http://www.dagitty.net/learn/index.html
+
+http://www.dagitty.net/manual-2.x.pdf
 
 https://cran.r-project.org/web/packages/dagitty/dagitty.pdf
 
